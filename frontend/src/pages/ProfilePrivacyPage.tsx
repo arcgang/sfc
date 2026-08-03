@@ -1,3 +1,3 @@
 export function ProfilePrivacyPage() {
-  return <></>;
+  return <h1>My Account</h1>;
 }

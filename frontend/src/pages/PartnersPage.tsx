@@ -1,3 +1,3 @@
 export function PartnersPage() {
-  return <></>;
+  return <h1>Partners &amp; Services</h1>;
 }

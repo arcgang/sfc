@@ -1,3 +1,3 @@
 export function DevicesPage() {
-  return <></>;
+  return <h1>Connected Devices</h1>;
 }

@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getStoredToken, setStoredToken, removeStoredToken } from './tokenStorage.js';
 
 export interface AuthUser {
   userId: string;
@@ -20,8 +21,6 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
-
-const TOKEN_KEY = 'token';
 
 function base64urlDecode(s: string): string {
   const base64 = s.replace(/-/g, '+').replace(/_/g, '/');
@@ -54,7 +53,7 @@ export function AuthProvider({
 }) {
   const [user, setUser] = useState<AuthUser | null>(() => {
     if (initialUser !== null) return initialUser;
-    const stored = localStorage.getItem(TOKEN_KEY);
+    const stored = getStoredToken();
     return stored ? parseToken(stored) : null;
   });
   const navigate = useNavigate();
@@ -62,12 +61,12 @@ export function AuthProvider({
   const login = useCallback((token: string) => {
     const parsed = parseToken(token);
     if (!parsed) return;
-    localStorage.setItem(TOKEN_KEY, token);
+    setStoredToken(token);
     setUser(parsed);
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY);
+    removeStoredToken();
     setUser(null);
     navigate('/');
   }, [navigate]);
