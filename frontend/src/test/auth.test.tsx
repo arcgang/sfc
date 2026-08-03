@@ -1,6 +1,6 @@
 import { render, screen, act } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { AuthProvider, parseToken, useAuth } from '../auth/AuthContext.js';
 import { ProtectedRoute } from '../auth/ProtectedRoute.js';
 import type { ReactElement } from 'react';
@@ -77,6 +77,8 @@ describe('ProtectedRoute', () => {
 });
 
 describe('AuthContext — login', () => {
+  beforeEach(() => localStorage.clear());
+
   function LoginConsumer() {
     const { login, user } = useAuth();
     return (
@@ -102,9 +104,30 @@ describe('AuthContext — login', () => {
 
     expect(screen.getByTestId('user').textContent).toBe('a@b.com');
   });
+
+  it('login() persists the token to localStorage under key "token"', async () => {
+    renderWithRouter(
+      <Routes>
+        <Route path="/" element={<LoginConsumer />} />
+      </Routes>,
+    );
+
+    const token = makeToken();
+    await act(async () => {
+      screen.getByText('log in').click();
+    });
+
+    expect(localStorage.getItem('token')).not.toBeNull();
+    // token stored is the one passed to login; verify it decodes to the same email
+    const stored = localStorage.getItem('token')!;
+    expect(JSON.parse(atob(stored.split('.')[1])).email).toBe('a@b.com');
+    void token;
+  });
 });
 
 describe('AuthContext — logout', () => {
+  beforeEach(() => localStorage.clear());
+
   function LogoutConsumer() {
     const { logout, user } = useAuth();
     return (
@@ -131,6 +154,22 @@ describe('AuthContext — logout', () => {
     });
 
     expect(screen.getByTestId('user').textContent).toBe('none');
+  });
+
+  it('logout() removes the token from localStorage', async () => {
+    localStorage.setItem('token', makeToken());
+    renderWithRouter(
+      <Routes>
+        <Route path="/" element={<LogoutConsumer />} />
+      </Routes>,
+      { authenticated: true },
+    );
+
+    await act(async () => {
+      screen.getByText('log out').click();
+    });
+
+    expect(localStorage.getItem('token')).toBeNull();
   });
 
   it('logout() navigates to "/" (public homepage)', async () => {

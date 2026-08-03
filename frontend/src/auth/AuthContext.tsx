@@ -21,11 +21,19 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+const TOKEN_KEY = 'token';
+
+function base64urlDecode(s: string): string {
+  const base64 = s.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
+  return atob(padded);
+}
+
 export function parseToken(token: string): AuthUser | null {
   try {
     const parts = token.split('.');
     if (parts.length !== 3) return null;
-    const payload = JSON.parse(atob(parts[1])) as Record<string, unknown>;
+    const payload = JSON.parse(base64urlDecode(parts[1])) as Record<string, unknown>;
     const userId = typeof payload.userId === 'string' ? payload.userId : '';
     const email = typeof payload.email === 'string' ? payload.email : '';
     const displayName =
@@ -44,16 +52,22 @@ export function AuthProvider({
   children: ReactNode;
   initialUser?: AuthUser | null;
 }) {
-  const [user, setUser] = useState<AuthUser | null>(initialUser);
+  const [user, setUser] = useState<AuthUser | null>(() => {
+    if (initialUser !== null) return initialUser;
+    const stored = localStorage.getItem(TOKEN_KEY);
+    return stored ? parseToken(stored) : null;
+  });
   const navigate = useNavigate();
 
   const login = useCallback((token: string) => {
     const parsed = parseToken(token);
     if (!parsed) return;
+    localStorage.setItem(TOKEN_KEY, token);
     setUser(parsed);
   }, []);
 
   const logout = useCallback(() => {
+    localStorage.removeItem(TOKEN_KEY);
     setUser(null);
     navigate('/');
   }, [navigate]);
