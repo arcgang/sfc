@@ -10,6 +10,20 @@ const GENERIC_CONFIRMATION =
 interface SessionBody {
   mode?: unknown;
   email?: unknown;
+  password?: unknown;
+  fullName?: unknown;
+}
+
+export interface RegisterRequest {
+  mode: 'register';
+  email: string;
+  password: string;
+  fullName: string;
+}
+
+export interface AuthSuccessResponse {
+  token: string;
+  userId: string;
 }
 
 authRouter.post('/session', (req: Request, res: Response) => {
@@ -26,6 +40,11 @@ authRouter.post('/session', (req: Request, res: Response) => {
     console.log(`auth.password_reset_requested email=${email}`);
 
     res.status(200).json({ message: GENERIC_CONFIRMATION });
+    return;
+  }
+
+  if (body.mode === 'register') {
+    res.status(501).json({ error: 'Not implemented.' });
     return;
   }
 
