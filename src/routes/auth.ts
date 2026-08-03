@@ -10,6 +10,20 @@ const GENERIC_CONFIRMATION =
 interface SessionBody {
   mode?: unknown;
   email?: unknown;
+  password?: unknown;
+  fullName?: unknown;
+}
+
+export interface RegisterRequest {
+  mode: 'register';
+  email: string;
+  password: string;
+  fullName: string;
+}
+
+export interface AuthSuccessResponse {
+  token: string;
+  userId: string;
 }
 
 authRouter.post('/session', (req: Request, res: Response) => {
@@ -19,17 +33,22 @@ authRouter.post('/session', (req: Request, res: Response) => {
     const email = body.email;
 
     if (typeof email !== 'string' || !EMAIL_RE.test(email)) {
-      res.status(400).json({ error: 'A valid email address is required.' });
+      res.status(400).json({ code: 'INVALID_EMAIL', error: 'A valid email address is required.' });
       return;
     }
 
-    console.log(`auth.password_reset_requested email=${email}`);
+    console.log(JSON.stringify({ event: 'auth.password_reset_requested' }));
 
     res.status(200).json({ message: GENERIC_CONFIRMATION });
     return;
   }
 
-  res.status(400).json({ error: 'Unknown session mode.' });
+  if (body.mode === 'register') {
+    res.status(501).json({ code: 'NOT_IMPLEMENTED', error: 'Not implemented.' });
+    return;
+  }
+
+  res.status(400).json({ code: 'INVALID_MODE', error: 'Unknown session mode.' });
 });
 
 export { authRouter };
