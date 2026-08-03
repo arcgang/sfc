@@ -103,15 +103,11 @@ describe('POST /api/v1/auth/session — mode=register', () => {
       expect(res.status).toBe(409);
     });
 
-    it('returns a message that does not confirm the email is already registered', async () => {
+    it('returns the generic message "Registration could not be completed." without revealing the email', async () => {
       const app = makeApp(db);
       await request(app).post(ENDPOINT).send(VALID_PAYLOAD);
       const res = await request(app).post(ENDPOINT).send(VALID_PAYLOAD);
-      const msg: string = res.body.message ?? res.body.error ?? '';
-      expect(msg.toLowerCase()).not.toContain('alice@example.com');
-      expect(msg.toLowerCase()).not.toContain('already');
-      expect(msg.toLowerCase()).not.toContain('exists');
-      expect(msg.length).toBeGreaterThan(0);
+      expect(res.body.message).toBe('Registration could not be completed.');
     });
   });
 

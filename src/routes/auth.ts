@@ -11,7 +11,10 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const GENERIC_CONFIRMATION =
   'If an account with that email exists, a reset link has been sent.';
 
-const JWT_SECRET = process.env['JWT_SECRET'] ?? 'dev-secret-change-in-production';
+const JWT_SECRET = process.env['JWT_SECRET'];
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required but not set.');
+}
 const BCRYPT_ROUNDS = 12;
 
 interface SessionBody {
@@ -104,11 +107,10 @@ authRouter.post('/session', async (req: Request, res: Response) => {
       const tx = db.transaction(() => {
         insertUser.run(userId, email, fullName, passwordHash);
         insertProfile.run(profileId, userId);
+        insertEvent.run(eventId, userId);
       });
 
       tx();
-
-      insertEvent.run(eventId, userId);
 
       const token = jwt.sign({ sub: userId }, JWT_SECRET, { expiresIn: '7d' });
 
