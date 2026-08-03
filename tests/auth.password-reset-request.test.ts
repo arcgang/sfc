@@ -27,7 +27,7 @@ describe('POST /api/v1/auth/session mode=password_reset_request', () => {
         .post(ENDPOINT)
         .send({ mode: 'password_reset_request', email: 'user@example.com' });
       expect(logSpy).toHaveBeenCalledWith(
-        'auth.password_reset_requested email=user@example.com',
+        JSON.stringify({ event: 'auth.password_reset_requested' }),
       );
       logSpy.mockRestore();
     });
