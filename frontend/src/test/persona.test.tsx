@@ -4,14 +4,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import type { ReactNode } from 'react';
 import { PersonaProvider, usePersona } from '../persona/PersonaContext.js';
 import { AuthProvider, parseToken } from '../auth/AuthContext.js';
-
-function makeToken(payload: Record<string, unknown> = {}): string {
-  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const body = btoa(
-    JSON.stringify({ userId: 'u1', email: 'a@b.com', displayName: 'Alex', ...payload }),
-  );
-  return `${header}.${body}.fakesig`;
-}
+import { makeToken } from './testUtils.js';
 
 const TEST_TOKEN = makeToken();
 
@@ -125,7 +118,7 @@ describe('usePersona()', () => {
     render(<PersonaConsumer />, { wrapper: Wrapper });
 
     await waitFor(() => {
-      expect(screen.getByTestId('mode')).toBeTruthy();
+      expect(screen.getByTestId('mode').textContent).toBe('wellness');
     });
 
     expect(mockFetch).toHaveBeenCalledWith(

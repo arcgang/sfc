@@ -38,7 +38,10 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
       headers: { Authorization: `Bearer ${token ?? ''}` },
       signal: controller.signal,
     })
-      .then((res) => res.json() as Promise<{ dashboardMode: DashboardMode }>)
+      .then((res) => {
+        if (!res.ok) throw new Error(`Profile fetch failed: ${res.status}`);
+        return res.json() as Promise<{ dashboardMode: DashboardMode }>;
+      })
       .then((data) => {
         setDashboardMode(data.dashboardMode);
         setIsLoading(false);
