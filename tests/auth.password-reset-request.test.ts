@@ -4,7 +4,7 @@ import { app } from '../src/app';
 const ENDPOINT = '/api/v1/auth/session';
 
 describe('POST /api/v1/auth/session mode=password_reset_request', () => {
-  describe('given a valid email address', () => {
+  describe('given email "user@example.com"', () => {
     it('returns HTTP 200', async () => {
       const res = await request(app)
         .post(ENDPOINT)
@@ -27,13 +27,13 @@ describe('POST /api/v1/auth/session mode=password_reset_request', () => {
         .post(ENDPOINT)
         .send({ mode: 'password_reset_request', email: 'user@example.com' });
       expect(logSpy).toHaveBeenCalledWith(
-        expect.stringContaining('auth.password_reset_requested'),
+        'auth.password_reset_requested email=user@example.com',
       );
       logSpy.mockRestore();
     });
   });
 
-  describe('given an email address for a non-existent account', () => {
+  describe('given email "ghost@nowhere.invalid" (non-existent account)', () => {
     it('returns the same generic confirmation message "If an account with that email exists, a reset link has been sent."', async () => {
       const res = await request(app)
         .post(ENDPOINT)
