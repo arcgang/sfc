@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { readToken, writeToken, clearToken } from './tokenStorage.js';
 
 export interface AuthUser {
   userId: string;
@@ -15,13 +16,12 @@ export interface AuthUser {
 
 interface AuthContextValue {
   user: AuthUser | null;
+  token: string | null;
   login: (token: string) => void;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
-
-const TOKEN_KEY = 'token';
 
 function base64urlDecode(s: string): string {
   const base64 = s.replace(/-/g, '+').replace(/_/g, '/');
@@ -52,28 +52,32 @@ export function AuthProvider({
   children: ReactNode;
   initialUser?: AuthUser | null;
 }) {
+  const [storedToken, setStoredToken] = useState<string | null>(() =>
+    readToken(),
+  );
   const [user, setUser] = useState<AuthUser | null>(() => {
     if (initialUser !== null) return initialUser;
-    const stored = localStorage.getItem(TOKEN_KEY);
-    return stored ? parseToken(stored) : null;
+    return storedToken ? parseToken(storedToken) : null;
   });
   const navigate = useNavigate();
 
   const login = useCallback((token: string) => {
     const parsed = parseToken(token);
     if (!parsed) return;
-    localStorage.setItem(TOKEN_KEY, token);
+    writeToken(token);
+    setStoredToken(token);
     setUser(parsed);
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY);
+    clearToken();
+    setStoredToken(null);
     setUser(null);
     navigate('/');
   }, [navigate]);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, token: storedToken, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
