@@ -1,6 +1,8 @@
 import request from 'supertest';
-import { app } from '../src/app';
+import { createTestDb } from '../src/db';
 import type { RegisterRequest, AuthSuccessResponse } from '../src/routes/auth';
+import type Database from 'better-sqlite3';
+import type { Application } from 'express';
 
 const ENDPOINT = '/api/v1/auth/session';
 
@@ -15,6 +17,24 @@ const registerPayload: RegisterRequest = {
 const _successShape: AuthSuccessResponse = { token: 'test-jwt', userId: 'test-uuid' };
 void _successShape;
 
+let db: Database.Database;
+let app: Application;
+
+beforeEach(() => {
+  db = createTestDb();
+  jest.resetModules();
+  jest.mock('../src/db', () => ({
+    ...jest.requireActual('../src/db'),
+    getDb: () => db,
+  }));
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  app = (require('../src/app') as { app: Application }).app;
+});
+
+afterEach(() => {
+  db.close();
+});
+
 describe('POST /api/v1/auth/session — register scaffold', () => {
   describe('smoke test — route existence', () => {
     it('responds to POST /api/v1/auth/session with a non-404 status confirming the route is registered', async () => {
@@ -24,9 +44,9 @@ describe('POST /api/v1/auth/session — register scaffold', () => {
   });
 
   describe('given mode="register" with email "newuser@example.com", password "StrongPass!23", fullName "New User"', () => {
-    it('returns HTTP 501 (stub — not yet implemented)', async () => {
+    it('returns HTTP 201 on successful registration', async () => {
       const res = await request(app).post(ENDPOINT).send(registerPayload);
-      expect(res.status).toBe(501);
+      expect(res.status).toBe(201);
     });
   });
 });
