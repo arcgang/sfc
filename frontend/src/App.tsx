@@ -8,6 +8,7 @@ import { AlertsPage } from './pages/AlertsPage.js';
 import { ProfilePrivacyPage } from './pages/ProfilePrivacyPage.js';
 import { PartnersPage } from './pages/PartnersPage.js';
 import { ProtectedRoute } from './auth/ProtectedRoute.js';
+import { AppShell } from './components/AppShell.js';
 import { PersonaProvider } from './persona/PersonaContext.js';
 
 function PersonaLayout() {
@@ -25,12 +26,14 @@ export function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<PersonaLayout />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/devices" element={<DevicesPage />} />
-          <Route path="/goals" element={<GoalsPage />} />
-          <Route path="/alerts" element={<AlertsPage />} />
-          <Route path="/account" element={<ProfilePrivacyPage />} />
-          <Route path="/partners" element={<PartnersPage />} />
+          <Route element={<AppShell />}>
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/devices" element={<DevicesPage />} />
+            <Route path="/goals" element={<GoalsPage />} />
+            <Route path="/alerts" element={<AlertsPage />} />
+            <Route path="/account" element={<ProfilePrivacyPage />} />
+            <Route path="/partners" element={<PartnersPage />} />
+          </Route>
         </Route>
       </Route>
     </Routes>

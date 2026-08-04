@@ -1,3 +1,3 @@
 export function GoalsPage() {
-  return <></>;
+  return <h1>Goals &amp; Progress</h1>;
 }

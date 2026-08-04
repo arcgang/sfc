@@ -1,3 +1,3 @@
 export function AlertsPage() {
-  return <></>;
+  return <h1>Alerts &amp; Insights</h1>;
 }
