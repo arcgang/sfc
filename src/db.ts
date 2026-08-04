@@ -22,7 +22,22 @@ function runMigrations(db: Database.Database): void {
 
   for (const file of files) {
     const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
-    db.exec(sql);
+    // Execute each statement individually so ALTER TABLE ADD COLUMN is
+    // idempotent: "duplicate column name" means already applied, not an error.
+    const statements = sql
+      .split(';')
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+    db.transaction(() => {
+      for (const stmt of statements) {
+        try {
+          db.exec(stmt + ';');
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : String(err);
+          if (!msg.includes('duplicate column name')) throw err;
+        }
+      }
+    })();
   }
 }
 
