@@ -1,5 +1,6 @@
 import express from 'express';
 import { authRouter } from './routes/auth.js';
+import { profileRouter } from './routes/profile.js';
 import { getDb } from './db.js';
 
 const app = express();
@@ -10,5 +11,6 @@ app.use(express.json());
 getDb();
 
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/profile', profileRouter);
 
 export { app };
