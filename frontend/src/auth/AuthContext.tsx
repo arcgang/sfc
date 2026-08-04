@@ -6,7 +6,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getStoredToken, setStoredToken, removeStoredToken } from './tokenStorage.js';
+import { readToken, writeToken, clearToken } from './tokenStorage.js';
 
 export interface AuthUser {
   userId: string;
@@ -16,6 +16,7 @@ export interface AuthUser {
 
 interface AuthContextValue {
   user: AuthUser | null;
+  token: string | null;
   login: (token: string) => void;
   logout: () => void;
 }
@@ -51,28 +52,32 @@ export function AuthProvider({
   children: ReactNode;
   initialUser?: AuthUser | null;
 }) {
+  const [storedToken, setStoredToken] = useState<string | null>(() =>
+    readToken(),
+  );
   const [user, setUser] = useState<AuthUser | null>(() => {
     if (initialUser !== null) return initialUser;
-    const stored = getStoredToken();
-    return stored ? parseToken(stored) : null;
+    return storedToken ? parseToken(storedToken) : null;
   });
   const navigate = useNavigate();
 
   const login = useCallback((token: string) => {
     const parsed = parseToken(token);
     if (!parsed) return;
+    writeToken(token);
     setStoredToken(token);
     setUser(parsed);
   }, []);
 
   const logout = useCallback(() => {
-    removeStoredToken();
+    clearToken();
+    setStoredToken(null);
     setUser(null);
     navigate('/');
   }, [navigate]);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, token: storedToken, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
