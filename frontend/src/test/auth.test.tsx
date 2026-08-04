@@ -4,15 +4,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { AuthProvider, parseToken, useAuth } from '../auth/AuthContext.js';
 import { ProtectedRoute } from '../auth/ProtectedRoute.js';
 import type { ReactElement } from 'react';
-
-// Minimal JWT with sub/email/name — not a real signature, just a parseable token
-function makeToken(payload: Record<string, unknown> = {}): string {
-  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const body = btoa(
-    JSON.stringify({ userId: 'u1', email: 'a@b.com', displayName: 'Alex', ...payload }),
-  );
-  return `${header}.${body}.fakesig`;
-}
+import { makeToken } from './testUtils.js';
 
 function renderWithRouter(
   ui: ReactElement,
