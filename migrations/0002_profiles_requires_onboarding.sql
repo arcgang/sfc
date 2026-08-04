@@ -1,0 +1,1 @@
+ALTER TABLE profiles ADD COLUMN requires_onboarding INTEGER NOT NULL DEFAULT 1;
