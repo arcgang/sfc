@@ -1,6 +1,7 @@
 import { Routes, Route, Outlet } from 'react-router-dom';
 import { HomePage } from './pages/HomePage.js';
 import { LoginPage } from './pages/LoginPage.js';
+import { SignUpPage } from './pages/SignUpPage.js';
 import { DashboardPage } from './pages/DashboardPage.js';
 import { DevicesPage } from './pages/DevicesPage.js';
 import { GoalsPage } from './pages/GoalsPage.js';
@@ -24,6 +25,7 @@ export function App() {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignUpPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<PersonaLayout />}>
           <Route element={<AppShell />}>

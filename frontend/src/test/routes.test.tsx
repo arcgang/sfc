@@ -32,6 +32,10 @@ describe('Route registration', () => {
     expect(() => renderApp('/login')).not.toThrow();
   });
 
+  it('renders "/signup" without crashing', () => {
+    expect(() => renderApp('/signup')).not.toThrow();
+  });
+
   for (const path of AUTHENTICATED_ROUTES) {
     it(`renders "${path}" without crashing (unauthenticated → /login redirect)`, () => {
       expect(() => renderApp(path)).not.toThrow();
