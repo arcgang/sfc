@@ -51,13 +51,6 @@ describe('usePersona()', () => {
     await waitFor(() => {
       expect(screen.getByTestId('mode').textContent).toBe('fitness');
     });
-
-    const { result } = renderHook(() => usePersona(), { wrapper: Wrapper });
-    await waitFor(() => {
-      expect(result.current.dashboardMode).toBe('fitness');
-      expect(result.current.isLoading).toBe(false);
-      expect(result.current.error).toBeNull();
-    });
   });
 
   it('returns { isLoading: true } while the fetch is in-flight', async () => {

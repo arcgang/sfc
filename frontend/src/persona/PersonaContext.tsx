@@ -7,7 +7,7 @@ import {
 } from 'react';
 import { useAuth } from '../auth/AuthContext.js';
 
-export type DashboardMode = 'wellness' | 'fitness' | 'medical';
+export type DashboardMode = 'default' | 'wellness' | 'fitness' | 'medical';
 
 interface PersonaContextValue {
   dashboardMode: DashboardMode | null;
